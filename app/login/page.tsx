@@ -8,12 +8,25 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { EmailLogin, EmailSignup } from "./action";
+import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
   readonly searchParams: { readonly message: string };
 }) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    return redirect("/todos");
+  }
+
   return (
     <section className="h-[calc(100vh-57px)] flex justify-center items-center">
       <Card className="mx-auto max-w-sm">
@@ -52,11 +65,17 @@ export default function LoginPage({
                 {searchParams.message}
               </div>
             )}
-            <Button className="w-full">Login</Button>
+            <Button formAction={EmailLogin} className="w-full">
+              Login
+            </Button>
           </form>
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{" "}
-            <button form="login-form" className="underline">
+            <button
+              formAction={EmailSignup}
+              form="login-form"
+              className="underline"
+            >
               Sign up
             </button>
           </div>
