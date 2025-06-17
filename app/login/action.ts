@@ -2,8 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-
 import { createClient } from "@/utils/supabase/server";
+import { Provider } from "@supabase/supabase-js";
+import { getURL } from "@/utils/helpers";
 
 export async function EmailLogin(formData: FormData) {
   const supabase = await createClient();
@@ -70,4 +71,26 @@ export async function SignOut() {
   revalidatePath("/", "layout");
 
   redirect("/login?message=" + encodeURIComponent("You have been signed out."));
+}
+
+export async function OAuthSignIn(provider: Provider) {
+  if (!provider) {
+    redirect("/login?message=" + encodeURIComponent("No provider selected"));
+  }
+
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: getURL("/auth/callback"), // Update to your actual callback URL
+    },
+  });
+
+  if (error || !data?.url) {
+    const friendlyMessage = "OAuth sign-in failed. Please try again.";
+    redirect(`/login?message=${encodeURIComponent(friendlyMessage)}`);
+  }
+
+  redirect(data.url); // Takes user to OAuth provider (e.g. Google login)
 }

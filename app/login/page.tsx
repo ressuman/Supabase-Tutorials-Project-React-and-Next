@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { EmailLogin, EmailSignup } from "./action";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import GithubOauthSignin from "./github-oauth-signin";
 
 export default async function LoginPage({
   searchParams,
@@ -36,7 +37,7 @@ export default async function LoginPage({
             Enter your email below to login to your account
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col gap-4">
           <form id="login-form" className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
@@ -69,7 +70,10 @@ export default async function LoginPage({
               Login
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm">
+
+          <GithubOauthSignin />
+
+          <div className="text-center text-sm">
             Don&apos;t have an account?{" "}
             <button
               formAction={EmailSignup}
