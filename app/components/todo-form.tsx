@@ -7,8 +7,14 @@ import { Send } from "lucide-react";
 import { useRef } from "react";
 import { addTodo } from "../todos/action";
 import { useFormStatus } from "react-dom";
+import { TodoOptimisticUpdate } from "./todo-list";
+import { Todo } from "@/types/custom";
 
-export default function TodoForm() {
+export default function TodoForm({
+  optimisticUpdate,
+}: {
+  readonly optimisticUpdate: TodoOptimisticUpdate;
+}) {
   const formRef = useRef<HTMLFormElement>(null);
 
   return (
@@ -18,17 +24,17 @@ export default function TodoForm() {
           ref={formRef}
           className="flex gap-4"
           action={async (data) => {
-            // const newTodo: Todo = {
-            //   id: -1,
-            //   inserted_at: "",
-            //   user_id: "",
-            //   task: data.get("todo") as string,
-            //   is_complete: false,
-            // };
-            // optimisticUpdate({
-            //   action: "create",
-            //   todo: newTodo,
-            // });
+            const newTodo: Todo = {
+              id: -1,
+              inserted_at: "",
+              user_id: "",
+              task: data.get("todo") as string,
+              is_complete: false,
+            };
+            optimisticUpdate({
+              action: "create",
+              todo: newTodo,
+            });
             await addTodo(data);
             formRef.current?.reset();
           }}

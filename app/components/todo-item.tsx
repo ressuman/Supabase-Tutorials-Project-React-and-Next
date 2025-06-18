@@ -8,17 +8,32 @@ import { Todo } from "@/types/custom";
 import { Trash2 } from "lucide-react";
 import { deleteTodo, updateTodo } from "../todos/action";
 import { useFormStatus } from "react-dom";
+import { TodoOptimisticUpdate } from "./todo-list";
+import { useState } from "react";
 
-export default function TodoItem({ todo }: { readonly todo: Todo }) {
+export default function TodoItem({
+  todo,
+  optimisticUpdate,
+}: Readonly<{
+  todo: Todo;
+  optimisticUpdate: TodoOptimisticUpdate;
+}>) {
   return (
     <form>
-      <TodoCard todo={todo} />
+      <TodoCard optimisticUpdate={optimisticUpdate} todo={todo} />
     </form>
   );
 }
 
-export const TodoCard = ({ todo }: { todo: Todo }) => {
+export const TodoCard = ({
+  todo,
+  optimisticUpdate,
+}: {
+  todo: Todo;
+  optimisticUpdate: TodoOptimisticUpdate;
+}) => {
   const { pending } = useFormStatus();
+  const [checked, setChecked] = useState(todo.is_complete);
 
   return (
     <Card className={cn("w-full", pending && "opacity-50")}>
@@ -26,11 +41,10 @@ export const TodoCard = ({ todo }: { todo: Todo }) => {
         <span className="size-10 flex items-center justify-center">
           <Checkbox
             disabled={pending}
-            checked={Boolean(todo.is_complete)}
-            //checked={Boolean(checked)}
+            checked={Boolean(checked)}
             onCheckedChange={async (val) => {
               if (val === "indeterminate") return;
-              //setChecked(val);
+              setChecked(val);
               await updateTodo({
                 ...todo,
                 is_complete: val,
@@ -42,10 +56,10 @@ export const TodoCard = ({ todo }: { todo: Todo }) => {
         <Button
           disabled={pending}
           formAction={async (data) => {
-            // optimisticUpdate({
-            //   action: "delete",
-            //   todo,
-            // });
+            optimisticUpdate({
+              action: "delete",
+              todo,
+            });
             await deleteTodo(todo.id);
           }}
           variant="ghost"
