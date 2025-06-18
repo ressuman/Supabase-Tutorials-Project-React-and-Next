@@ -1,13 +1,37 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Send } from "lucide-react";
+import { useRef } from "react";
+import { addTodo } from "../todos/action";
 
 export default function TodoForm() {
+  const formRef = useRef<HTMLFormElement>(null);
+
   return (
     <Card>
       <CardContent className="p-3">
-        <form className="flex gap-4">
+        <form
+          ref={formRef}
+          className="flex gap-4"
+          action={async (data) => {
+            // const newTodo: Todo = {
+            //   id: -1,
+            //   inserted_at: "",
+            //   user_id: "",
+            //   task: data.get("todo") as string,
+            //   is_complete: false,
+            // };
+            // optimisticUpdate({
+            //   action: "create",
+            //   todo: newTodo,
+            // });
+            await addTodo(data);
+            formRef.current?.reset();
+          }}
+        >
           <FormContent />
         </form>
       </CardContent>
