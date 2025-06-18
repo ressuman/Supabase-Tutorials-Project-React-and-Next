@@ -60,6 +60,8 @@ export async function deleteTodo(id: number) {
 
 // Update a todo (by ID and user)
 export async function updateTodo(todo: Todo) {
+  // await new Promise((resolve) => setTimeout(resolve, 3000)); // Simulate a delay
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -70,17 +72,10 @@ export async function updateTodo(todo: Todo) {
     throw new Error("User is not authenticated.");
   }
 
-  const { error } = await supabase
-    .from("todos")
-    .update({
-      user_id: user.id,
-      task: todo.task,
-      completed: todo.is_complete,
-    })
-    .match({
-      id: todo.id,
-      user_id: user.id,
-    });
+  const { error } = await supabase.from("todos").update(todo).match({
+    id: todo.id,
+    user_id: user.id,
+  });
 
   if (error) {
     throw new Error("Failed to update the task.");
